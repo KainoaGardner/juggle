@@ -4,6 +4,8 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight - 100;
 
 const c = canvas.getContext("2d")!;
+c.textBaseline = "middle";
+c.textAlign = "center";
 
 window.addEventListener("resize", function () {
   canvas.width = window.innerWidth;
@@ -17,11 +19,11 @@ class Ball {
   color: string;
   strokeColor: string;
 
-  vx: number = 500;
+  vx: number = 0;
   vy: number = 0;
 
   ax: number = 0;
-  ay: number = 3000;
+  ay: number = (9.8 * 1000) / 2;
 
   grabbed: boolean = false;
   grabbedx: number = 0;
@@ -169,10 +171,42 @@ function ballResponse(b1: any, b2: any, dist: number): void {
   b2.vy = VY2 * loss;
 }
 
+let score = 0;
+function checkJuggling(): boolean {
+  if (balls.length == 0) {
+    return false;
+  }
+
+  for (let i = 0; i < balls.length; i++) {
+    if (balls[i].y === canvas.height - balls[i].radius) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function juggleScore(): void {
+  if (checkJuggling()) {
+    score++;
+  } else {
+    score = 0;
+  }
+}
+
+function drawText(): void {
+  c.font = "300px Trebuchet MS ";
+  c.fillStyle = "white";
+
+  const text = `${Math.floor(score / 60)}`;
+  c.fillText(text, canvas.width / 2, canvas.height / 2);
+}
+
 const mouse = {
   x: 0,
   y: 0,
 };
+
+let mousePos: number[][] = [];
 
 window.addEventListener("mousemove", function (event) {
   const rect = canvas.getBoundingClientRect();
@@ -181,6 +215,11 @@ window.addEventListener("mousemove", function (event) {
     ((event.clientX - rect.left) / (rect.right - rect.left)) * canvas.width;
   mouse.y =
     ((event.clientY - rect.top) / (rect.bottom - rect.top)) * canvas.height;
+
+  mousePos.push([mouse.x, mouse.y]);
+  if (mousePos.length > 5) {
+    mousePos.shift();
+  }
 });
 
 window.addEventListener("mousedown", function (event) {
@@ -190,6 +229,8 @@ window.addEventListener("mousedown", function (event) {
     ((event.clientX - rect.left) / (rect.right - rect.left)) * canvas.width;
   mouse.y =
     ((event.clientY - rect.top) / (rect.bottom - rect.top)) * canvas.height;
+
+  mousePos = [];
 
   let grabbable: Ball[] = [];
   let minDist = Infinity;
@@ -215,9 +256,13 @@ window.addEventListener("mousedown", function (event) {
 window.addEventListener("mouseup", function (event) {
   for (let i = 0; i < balls.length; i++) {
     if (balls[i].grabbed) {
-      const dist = Math.sqrt(
-        Math.pow(mouse.x - balls[i].x, 2) + Math.pow(mouse.y - balls[i].y, 2),
-      );
+      if (mousePos.length > 0) {
+        const xDist = mouse.x - mousePos[0][0];
+        const yDist = mouse.y - mousePos[0][1];
+
+        balls[i].vx = xDist / dt / 5;
+        balls[i].vy = yDist / dt / 5;
+      }
 
       balls[i].grabbed = false;
     }
@@ -227,16 +272,42 @@ window.addEventListener("mouseup", function (event) {
 let balls: Ball[] = [];
 
 let radius = 50;
-const ball1 = new Ball(100, 100, radius, "Black", "white");
-const ball2 = new Ball(300, 100, radius, "Black", "white");
-const ball3 = new Ball(500, 100, radius, "Black", "white");
+const ball1 = new Ball(
+  canvas.width / 2,
+  canvas.height - radius,
+  radius,
+  "Black",
+  "white",
+);
+const ball2 = new Ball(
+  canvas.width / 4,
+  canvas.height - radius,
+  radius,
+  "Black",
+  "white",
+);
+const ball3 = new Ball(
+  canvas.width / 2 + canvas.width / 4,
+  canvas.height - radius,
+  radius,
+  "Black",
+  "white",
+);
 balls.push(ball1);
 balls.push(ball2);
 balls.push(ball3);
 
 document.getElementById("add")!.onclick = function () {
   if (balls.length < 10) {
-    balls.push(new Ball(500, 100, radius, ballColor.value, strokeColor.value));
+    balls.push(
+      new Ball(
+        canvas.width / 2,
+        100,
+        radius,
+        ballColor.value,
+        strokeColor.value,
+      ),
+    );
   }
 };
 
@@ -278,6 +349,14 @@ ballRadius.addEventListener("change", (event) => {
   }
 });
 
+const gravityButton = document.getElementById("gravity") as HTMLInputElement;
+gravityButton.value = "9.8";
+gravityButton.addEventListener("change", (event) => {
+  for (let i = 0; i < balls.length; i++) {
+    balls[i].ay = (+gravityButton.value * 1000) / 2;
+  }
+});
+
 function main(): void {
   setInterval(updateFrame, 1000 / targetFps);
   drawFrame();
@@ -286,6 +365,7 @@ function main(): void {
 function drawFrame(): void {
   requestAnimationFrame(drawFrame);
   c.clearRect(0, 0, canvas.width, canvas.height);
+  drawText();
   for (let i = 0; i < balls.length; i++) {
     balls[i].draw();
   }
@@ -298,6 +378,7 @@ function updateFrame(): void {
   }
 
   ballCollision();
+  juggleScore();
 }
 
 let times: number[] = [];
@@ -313,4 +394,5 @@ function showFps(): void {
 
 const targetFps: number = 60;
 const dt: number = 1 / targetFps;
+
 main();
