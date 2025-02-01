@@ -123,12 +123,12 @@ function ballCollision(): void {
 
 function ballResponse(b1: any, b2: any, dist: number): void {
   const offDist = b1.radius + b2.radius - dist;
-  const dx = b1.x - b2.x;
-  const dy = b1.y - b2.y;
+  let dx = b1.x - b2.x;
+  let dy = b1.y - b2.y;
 
   const h = offDist / 1.5;
 
-  const angle = Math.atan2(dy, dx);
+  let angle = Math.atan2(dy, dx);
 
   const moveX = h * Math.cos(angle);
   const moveY = h * Math.sin(angle);
@@ -139,53 +139,34 @@ function ballResponse(b1: any, b2: any, dist: number): void {
   b2.x = b2.x - moveX;
   b2.y = b2.y - moveY;
 
-  let newVX1: number;
-  let newVY1: number;
-  let newVX2: number;
-  let newVY2: number;
+  //velocity math
 
-  if (b2.x - b1.x === 0) {
-    newVX1 = b1.vx * -1;
-  } else {
-    newVX1 =
-      b1.vx +
-      (((b2.vx - b1.vx) * (b2.x - b1.x)) / Math.pow(b2.x - b1.x, 2)) *
-        (b2.x - b1.x);
-  }
+  dist = Math.sqrt(Math.pow(b1.x - b2.x, 2) + Math.pow(b1.y - b2.y, 2));
 
-  if (b2.y - b1.y === 0) {
-    newVY1 = b1.vy * -1;
-  } else {
-    newVY1 =
-      b1.vy +
-      (((b2.vy - b1.vy) * (b2.y - b1.y)) / Math.pow(b2.y - b1.y, 2)) *
-        (b2.y - b1.y);
-  }
+  let VX1;
+  let VY1;
+  let VX2;
+  let VY2;
 
-  if (b1.x - b2.x === 0) {
-    newVX2 = b2.vx * -1;
-  } else {
-    newVX2 =
-      b2.vx +
-      (((b1.vx - b2.vx) * (b1.x - b2.x)) / Math.pow(b1.x - b2.x, 2)) *
-        (b1.x - b2.x);
-  }
+  let k =
+    ((b1.vx - b2.vx) * (b1.x - b2.x) + (b1.vy - b2.vy) * (b1.y - b2.y)) /
+    (dist * dist);
 
-  if (b1.y - b2.y === 0) {
-    newVY2 = b2.vy * -1;
-  } else {
-    newVY2 =
-      b2.vy +
-      (((b1.vy - b2.vy) * (b1.y - b2.y)) / Math.pow(b1.y - b2.y, 2)) *
-        (b1.y - b2.y);
-  }
+  VX1 = b1.vx - k * (b1.x - b2.x);
+  VY1 = b1.vy - k * (b1.y - b2.y);
+
+  k =
+    ((b2.vx - b1.vx) * (b2.x - b1.x) + (b2.vy - b1.vy) * (b2.y - b1.y)) /
+    (dist * dist);
+
+  VX2 = b2.vx - k * (b2.x - b1.x);
+  VY2 = b2.vy - k * (b2.y - b1.y);
 
   const loss = 0.8;
-
-  b1.vx = newVX1 * loss;
-  b1.vy = newVY1 * loss;
-  b2.vx = newVX2 * loss;
-  b2.vy = newVY2 * loss;
+  b1.vx = VX1 * loss;
+  b1.vy = VY1 * loss;
+  b2.vx = VX2 * loss;
+  b2.vy = VY2 * loss;
 }
 
 const mouse = {
