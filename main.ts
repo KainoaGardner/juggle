@@ -1,5 +1,4 @@
 const canvas = document.querySelector("canvas")!;
-
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight - 100;
 
@@ -24,6 +23,8 @@ class Ball {
 
   ax: number = 0;
   ay: number = (9.8 * 1000) / 2;
+
+  hitAudio = new Audio("static/hit.wav");
 
   grabbed: boolean = false;
   grabbedx: number = 0;
@@ -74,22 +75,34 @@ class Ball {
   private edges(): void {
     const loss = 0.8;
     const friction = 0.8;
+    const totalV = Math.sqrt(this.vx * this.vx + this.vy * this.vy);
+    this.hitAudio.volume = Math.min(totalV, 3000) / 3000;
 
     //left
     if (this.x - this.radius <= 0) {
       this.x = this.radius;
       this.vx = this.vx * -1 * loss;
+
+      if (totalV > 500) {
+        this.hitAudio.play();
+      }
     }
     //right
     if (this.x + this.radius >= canvas.width) {
       this.x = canvas.width - this.radius;
       this.vx = this.vx * -1 * loss;
+      if (totalV > 500) {
+        this.hitAudio.play();
+      }
     }
 
     //bottom
     if (this.y + this.radius >= canvas.height) {
       this.y = canvas.height - this.radius;
       this.vy = this.vy * -1 * loss;
+      if (totalV > 500) {
+        this.hitAudio.play();
+      }
     }
 
     if (this.y === canvas.height - this.radius) {
@@ -169,6 +182,15 @@ function ballResponse(b1: any, b2: any, dist: number): void {
   b1.vy = VY1 * loss;
   b2.vx = VX2 * loss;
   b2.vy = VY2 * loss;
+
+  const totalV =
+    Math.sqrt(b1.vx * b1.vx + b1.vy * b1.vy) +
+    Math.sqrt(b2.vx * b2.vx + b2.vy * b2.vy);
+
+  if (totalV > 500) {
+    b1.hitAudio.volume = Math.min(totalV, 5000) / 5000;
+    b1.hitAudio.play();
+  }
 }
 
 let score = 0;
@@ -193,9 +215,10 @@ function juggleScore(): void {
   }
 }
 
+let scoreFill: string = "white";
 function drawText(): void {
   c.font = "300px Trebuchet MS ";
-  c.fillStyle = "white";
+  c.fillStyle = scoreFill;
 
   const text = `${Math.floor(score / 60)}`;
   c.fillText(text, canvas.width / 2, canvas.height / 2);
@@ -250,6 +273,7 @@ window.addEventListener("mousedown", function (event) {
 
   if (grabbable.length !== 0) {
     grabbable[grabbable.length - 1].grabbed = true;
+    clickAudio.play();
   }
 });
 
@@ -325,6 +349,12 @@ backgroundColor.addEventListener("change", (event) => {
   canvas.style.backgroundColor = backgroundColor.value;
 });
 
+const scoreColor = document.getElementById("scoreColor") as HTMLInputElement;
+scoreColor.value = "#ffffff";
+scoreColor.addEventListener("change", (event) => {
+  scoreFill = scoreColor.value;
+});
+
 const ballColor = document.getElementById("ballColor") as HTMLInputElement;
 ballColor.value = "black";
 ballColor.addEventListener("change", (event) => {
@@ -357,8 +387,13 @@ gravityButton.addEventListener("change", (event) => {
   }
 });
 
+const speedDom = document.getElementById("speed") as HTMLInputElement;
+speedDom.value = "1";
+speedDom.addEventListener("change", (event) => {
+  speed = +speedDom.value;
+});
+
 function main(): void {
-  setInterval(updateFrame, 1000 / targetFps);
   drawFrame();
 }
 
@@ -372,6 +407,7 @@ function drawFrame(): void {
 }
 
 function updateFrame(): void {
+  clearInterval(interval);
   showFps();
   for (let i = 0; i < balls.length; i++) {
     balls[i].update();
@@ -379,6 +415,8 @@ function updateFrame(): void {
 
   ballCollision();
   juggleScore();
+
+  interval = setInterval(updateFrame, 1000 / (targetFps * speed));
 }
 
 let times: number[] = [];
@@ -393,6 +431,12 @@ function showFps(): void {
 }
 
 const targetFps: number = 60;
+let speed = 1;
 const dt: number = 1 / targetFps;
+const clickAudio = new Audio("static/click.wav");
+// clickAudio.volume = 0.5;
+const hitEdgeAudio = new Audio("static/hit.wav");
+
+let interval = setInterval(updateFrame, 1000 / (targetFps * speed));
 
 main();
