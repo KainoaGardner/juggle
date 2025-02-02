@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Juggle</title>
+
+    <link href="static/css/index.css" text="text/css" rel="stylesheet" />
+    <script
+      src="https://unpkg.com/htmx.org@2.0.4"
+      integrity="sha384-HGfztofotfshcF7+8n44JQL2oJmowVChPTg48S+jvZoztPfvwD79OC/LTtG6dMp+"
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <div class="main">
+      <canvas></canvas>
+
+      <div class="settingsMain">
+        <button id="add" class="settingsItem settingsButton">Add Ball</button>
+        <button id="delete" class="settingsItem settingsButton">
+          Remove Ball
+        </button>
+
+        <label for="background">Background</label>
+        <input
+          type="color"
+          id="backgroundColor"
+          value="#bdc3c7"
+          class="settingsItem settingsColor"
+        />
+
+        <label for="scoreColor">Score</label>
+        <input
+          type="color"
+          id="scoreColor"
+          value="#000000"
+          class="settingsItem settingsColor"
+        />
+
+        <label for="ballColor">Ball</label>
+        <input
+          type="color"
+          id="ballColor"
+          value="#000000"
+          class="settingsItem settingsColor"
+        />
+
+        <label for="strokeColor">Ball Outline</label>
+        <input
+          type="color"
+          id="strokeColor"
+          value="#ffffff"
+          class="settingsItem settingsColor"
+        />
+
+        <label for="radius">Radius</label>
+        <input
+          type="number"
+          id="radius"
+          min="10"
+          max="100"
+          value="50"
+          class="settingsItem settingsInput"
+        />
+
+        <label for="radius">Gravity</label>
+        <input
+          type="number"
+          id="gravity"
+          min="0"
+          max="50"
+          value="9.8"
+          class="settingsItem settingsInput"
+        />
+
+        <label for="speed">Speed</label>
+        <input
+          type="number"
+          id="speed"
+          min="0.1"
+          max="3"
+          value="1"
+          class="settingsItem settingsInput"
+        />
+      </div>
+    </div>
+
+    <div id="tabs">
+      <button hx-get="/about" hx-target="#content">About</button>
+      <button hx-get="/post" hx-target="#content">Post</button>
+    </div>
+    <div id="content"></div>
+
+    <script src="static/js/main.js"></script>
+  </body>
+</html>

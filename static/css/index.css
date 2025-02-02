@@ -1,0 +1,47 @@
+canvas {
+  padding: 0;
+  /* margin: auto; */
+  display: block;
+
+  background-color: #bdc3c7;
+  border: 5px solid black;
+}
+
+body {
+  margin: 0;
+}
+
+.main {
+  display: flex;
+}
+
+.settingsMain {
+  width: 100%;
+  display: flex;
+  padding: 10px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border: 5px black;
+  border-style: solid none;
+  margin: 0;
+}
+
+.settingsItem {
+  margin-bottom: 20px;
+}
+
+.settingsColor,
+.settingsInput,
+.settingsButton {
+  width: 100%;
+}
+
+.settingsInput {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+.settingsButton {
+  font-size: 15px;
+}
