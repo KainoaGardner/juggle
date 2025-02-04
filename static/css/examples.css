@@ -1,0 +1,16 @@
+img {
+  width: 300px;
+  height: 300px;
+}
+
+.exampleTitle {
+  margin-bottom: 0px;
+}
+
+.exampleRow {
+  display: flex;
+}
+
+.example {
+  margin: 0px 10px;
+}
