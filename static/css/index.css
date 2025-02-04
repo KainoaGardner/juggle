@@ -59,3 +59,13 @@ body {
 .content {
   padding: 0px 15px;
 }
+
+.highScoreText {
+  margin: 0px 0px;
+  font-size: 25px;
+}
+
+.highScore {
+  margin-top: 5px;
+  margin-bottom: 30px;
+}
