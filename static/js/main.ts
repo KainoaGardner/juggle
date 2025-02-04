@@ -209,9 +209,17 @@ function checkJuggling(): boolean {
   return true;
 }
 
+const highScoreElement = document.getElementById(
+  "highScore",
+) as HTMLInputElement;
+
 function juggleScore(): void {
   if (checkJuggling()) {
     score++;
+    if (Math.floor(score / 60) > highScore) {
+      highScore = Math.floor(score / 60);
+      highScoreElement.innerHTML = "" + highScore;
+    }
   } else {
     score = 0;
   }
@@ -343,6 +351,19 @@ document.getElementById("delete")!.onclick = function () {
   }
 };
 
+document.getElementById("reset")!.onclick = function () {
+  console.log("reste");
+  if (balls.length > 0) {
+    const gap = canvas.width / (balls.length + 1);
+    for (let i = 0; i < balls.length; i++) {
+      balls[i].vx = 0;
+      balls[i].vy = 0;
+      balls[i].y = canvas.height - balls[i].radius;
+      balls[i].x = (i + 1) * gap;
+    }
+  }
+};
+
 const backgroundColor = document.getElementById(
   "backgroundColor",
 ) as HTMLInputElement;
@@ -376,23 +397,42 @@ strokeColor.addEventListener("change", (event) => {
 const ballRadius = document.getElementById("radius") as HTMLInputElement;
 ballRadius.value = "50";
 ballRadius.addEventListener("change", (event) => {
-  for (let i = 0; i < balls.length; i++) {
-    balls[i].radius = +ballRadius.value;
+  if (+ballRadius.value >= 10 && +ballRadius.value <= 100) {
+    for (let i = 0; i < balls.length; i++) {
+      balls[i].radius = +ballRadius.value;
+    }
+  } else {
+    ballRadius.value = "" + 50;
+    for (let i = 0; i < balls.length; i++) {
+      balls[i].radius = +ballRadius.value;
+    }
   }
 });
 
 const gravityButton = document.getElementById("gravity") as HTMLInputElement;
 gravityButton.value = "9.8";
 gravityButton.addEventListener("change", (event) => {
-  for (let i = 0; i < balls.length; i++) {
-    balls[i].ay = (+gravityButton.value * 1000) / 2;
+  if (+gravityButton >= 0 && +gravityButton <= 50) {
+    for (let i = 0; i < balls.length; i++) {
+      balls[i].ay = (+gravityButton.value * 1000) / 2;
+    }
+  } else {
+    gravityButton.value = "" + 9.8;
+    for (let i = 0; i < balls.length; i++) {
+      balls[i].ay = (+gravityButton.value * 1000) / 2;
+    }
   }
 });
 
 const speedDom = document.getElementById("speed") as HTMLInputElement;
 speedDom.value = "1";
 speedDom.addEventListener("change", (event) => {
-  speed = +speedDom.value;
+  if (+speedDom.value >= 0.1 && +speedDom.value <= 3) {
+    speed = +speedDom.value;
+  } else {
+    speedDom.value = "" + 1;
+    speed = 1;
+  }
 });
 
 function main(): void {
@@ -434,6 +474,7 @@ function showFps(): void {
 
 const targetFps: number = 60;
 let speed = 1;
+let highScore = 0;
 const dt: number = 1 / targetFps;
 const clickAudio = new Audio("static/click.wav");
 // clickAudio.volume = 0.5;

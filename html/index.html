@@ -87,11 +87,20 @@
       </div>
     </div>
 
-    <div id="tabs">
-      <button hx-get="/about" hx-target="#content">About</button>
-      <button hx-get="/post" hx-target="#content">Post</button>
+    <div class="tabs" id="tabs">
+      <button
+        class="tabButton"
+        hx-get="/about"
+        hx-trigger="click,load"
+        hx-target="#content"
+      >
+        About
+      </button>
+      <button class="tabButton" hx-get="/examples" hx-target="#content">
+        Examples
+      </button>
     </div>
-    <div id="content"></div>
+    <div class="content" id="content"></div>
 
     <script src="static/js/main.js"></script>
   </body>
